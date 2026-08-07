@@ -1,0 +1,35 @@
+App(
+    appid="talos",
+    name="Talos",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="talos_app",
+    stack_size=4 * 1024,
+    fap_category="iButton",
+    fap_icon="icons/talos_10px.png",
+    fap_icon_assets="icons",
+    fap_author="at0m-b0mb",
+    fap_weburl="https://github.com/at0m-b0mb/Talos-FlipperZero",
+    fap_version="1.0",
+    # Explicit, so the recursive default does not sweep test/ (host-only code)
+    # into the firmware build.
+    sources=[
+        "talos.c",
+        "helpers/*.c",
+        "views/*.c",
+        "scenes/*.c",
+    ],
+    fap_description=(
+        "iButton and Dallas key grader. Touch a 1-Wire key to the Flipper's "
+        "contact and Talos identifies the part from its family code and hands "
+        "back a plain-English security grade with a full report: what the key "
+        "actually proves, what a copy would cost, and how much is left to guess. "
+        "Knows 41 family codes across door keys, memory parts, the three "
+        "SHA-1-capable buttons and the sensors people touch by mistake, plus "
+        "Cyfral and Metakom intercom fobs. Verifies the ROM's own checksum to "
+        "catch keys that are already careless clones, and compares each serial "
+        "against the keyring log to expose sequentially issued stock. Strictly "
+        "read-only: it never writes a blank, never emulates your key, and leaves "
+        "the part exactly as it found it."
+    ),
+    requires=["gui", "storage"],
+)

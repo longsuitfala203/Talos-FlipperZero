@@ -1,0 +1,19 @@
+# build output — the .fap ships attached to the GitHub release
+dist/
+build/
+.ufbt/
+*.fap
+*.elf
+*.dSYM/
+
+# host tests
+test/host_grade_test
+
+# editor / tooling
+.vscode/
+.DS_Store
+__pycache__/
+*.pyc
+
+# icon inspection output
+icons/*_preview.png

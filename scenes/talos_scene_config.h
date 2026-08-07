@@ -1,0 +1,7 @@
+ADD_SCENE(talos, start, Start)
+ADD_SCENE(talos, scan, Scan)
+ADD_SCENE(talos, result, Result)
+ADD_SCENE(talos, report, Report)
+ADD_SCENE(talos, keyring, Keyring)
+ADD_SCENE(talos, settings, Settings)
+ADD_SCENE(talos, about, About)
